@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\Tests\ORM\Functional;
 
 use Doctrine\Tests\Models\Upsertable\Insertable;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceRoot;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceWritableColumn;
 use Doctrine\Tests\Models\Upsertable\Updatable;
 use Doctrine\Tests\OrmFunctionalTestCase;
 
@@ -14,7 +16,12 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
     {
         parent::setUp();
 
-        $this->createSchemaForModels(Updatable::class, Insertable::class);
+        $this->createSchemaForModels(
+            JoinedInheritanceRoot::class,
+            JoinedInheritanceWritableColumn::class,
+            Updatable::class,
+            Insertable::class
+        );
     }
 
     public function testNotInsertableIsFetchedFromDatabase(): void
@@ -61,5 +68,32 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         self::assertEquals('bar', $cleanUpdatable->updatableContent);
         self::assertEquals('foo', $cleanUpdatable->nonUpdatableContent);
+    }
+
+    public function testJoinedInheritanceWritableColumn(): void
+    {
+        $entity                  = new JoinedInheritanceWritableColumn();
+        $entity->writableContent = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check insert
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceWritableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceWritableColumn::class, $cleanEntity);
+        self::assertEquals('foo', $cleanEntity->writableContent);
+
+        // update
+        $entity->writableContent = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check update
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceWritableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceWritableColumn::class, $cleanEntity);
+        self::assertEquals('bar', $cleanEntity->writableContent);
     }
 }
