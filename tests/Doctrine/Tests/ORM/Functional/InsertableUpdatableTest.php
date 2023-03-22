@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\Tests\ORM\Functional;
 
 use Doctrine\Tests\Models\Upsertable\Insertable;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonInsertableColumn;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonUpdatableColumn;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonWritableColumn;
 use Doctrine\Tests\Models\Upsertable\JoinedInheritanceRoot;
 use Doctrine\Tests\Models\Upsertable\JoinedInheritanceWritableColumn;
 use Doctrine\Tests\Models\Upsertable\Updatable;
@@ -19,6 +22,9 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
         $this->createSchemaForModels(
             JoinedInheritanceRoot::class,
             JoinedInheritanceWritableColumn::class,
+            JoinedInheritanceNonWritableColumn::class,
+            JoinedInheritanceNonInsertableColumn::class,
+            JoinedInheritanceNonUpdatableColumn::class,
             Updatable::class,
             Insertable::class
         );
@@ -95,5 +101,89 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
         $cleanEntity = $this->_em->find(JoinedInheritanceWritableColumn::class, $entity->id);
         self::assertInstanceOf(JoinedInheritanceWritableColumn::class, $cleanEntity);
         self::assertEquals('bar', $cleanEntity->writableContent);
+    }
+
+    /**
+
+    public function testJoinedInheritanceNonWritableColumn(): void
+    {
+        $entity                     = new JoinedInheritanceNonWritableColumn();
+        $entity->nonWritableContent = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check insert
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonWritableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonWritableColumn::class, $cleanEntity);
+        self::assertEquals('foo', $cleanEntity->nonWritableContent);
+
+        // update
+        $entity->nonWritableContent = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check update
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonWritableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonWritableColumn::class, $cleanEntity);
+        self::assertEquals('bar', $cleanEntity->nonWritableContent);
+    }
+
+    public function testJoinedInheritanceNonInsertableColumn(): void
+    {
+        $entity                       = new JoinedInheritanceNonInsertableColumn();
+        $entity->nonInsertableContent = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check insert
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonInsertableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonInsertableColumn::class, $cleanEntity);
+        self::assertEquals('foo', $cleanEntity->nonInsertableContent);
+
+        // update
+        $entity->nonInsertableContent = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check update
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonInsertableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonInsertableColumn::class, $cleanEntity);
+        self::assertEquals('bar', $cleanEntity->nonInsertableContent);
+    }
+    */
+
+    public function testJoinedInheritanceNonUpdatableColumn(): void
+    {
+        $entity                      = new JoinedInheritanceNonUpdatableColumn();
+        $entity->nonUpdatableContent = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check insert
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonUpdatableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonUpdatableColumn::class, $cleanEntity);
+        self::assertEquals('foo', $cleanEntity->nonUpdatableContent);
+
+        // update
+        $entity->nonUpdatableContent = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check update
+        $this->_em->clear();
+        $cleanEntity = $this->_em->find(JoinedInheritanceNonUpdatableColumn::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceNonUpdatableColumn::class, $cleanEntity);
+        self::assertEquals('bar', $cleanEntity->nonUpdatableContent);
     }
 }

@@ -19,7 +19,10 @@ use Doctrine\ORM\Mapping\Table;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
- *      "writable" = "JoinedInheritanceWritableColumn"
+ *      "writable" = "JoinedInheritanceWritableColumn",
+ *      "nonWritable" = "JoinedInheritanceNonWritableColumn",
+ *      "nonInsertable" = "JoinedInheritanceNonInsertableColumn",
+ *      "nonUpdatable" = "JoinedInheritanceNonUpdatableColumn"
  * })
  */
 #[Entity]
@@ -28,6 +31,9 @@ use Doctrine\ORM\Mapping\Table;
 #[DiscriminatorColumn(name: 'discr', type: 'string')]
 #[DiscriminatorMap([
     'writable' => JoinedInheritanceWritableColumn::class,
+    'nonWritable' => JoinedInheritanceNonWritableColumn::class,
+    'nonInsertable' => JoinedInheritanceNonInsertableColumn::class,
+    'nonUpdatable' => JoinedInheritanceNonUpdatableColumn::class,
 ])]
 class JoinedInheritanceRoot
 {
