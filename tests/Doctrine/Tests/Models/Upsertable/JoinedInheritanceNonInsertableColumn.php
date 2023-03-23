@@ -18,8 +18,8 @@ class JoinedInheritanceNonInsertableColumn extends JoinedInheritanceRoot
 {
     /**
      * @var string
-     * @Column(type="string", insertable=false, updatable=true, generated="ALWAYS")
+     * @Column(type="string", insertable=false, updatable=true, options={"default": "dbDefault"}, generated="ALWAYS")
      */
-    #[Column(type: 'string', insertable: false, updatable: true, generated: 'ALWAYS')]
+    #[Column(type: 'string', insertable: false, updatable: true, options: ['default' => 'dbDefault'], generated: 'ALWAYS')]
     public $nonInsertableContent;
 }

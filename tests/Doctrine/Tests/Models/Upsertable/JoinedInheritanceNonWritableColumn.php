@@ -18,8 +18,8 @@ class JoinedInheritanceNonWritableColumn extends JoinedInheritanceRoot
 {
     /**
      * @var string
-     * @Column(type="string", insertable=false, updatable=false, generated="ALWAYS")
+     * @Column(type="string", insertable=false, updatable=false, options={"default": "dbDefault"}, generated="ALWAYS")
      */
-    #[Column(type: 'string', insertable: false, updatable: false, generated: 'ALWAYS')]
+    #[Column(type: 'string', insertable: false, updatable: false, options: ['default' => 'dbDefault'], generated: 'ALWAYS')]
     public $nonWritableContent;
 }
