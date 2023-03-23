@@ -14,11 +14,53 @@ class GH9467Test extends OrmFunctionalTestCase
 
         $this->createSchemaForModels(
             JoinedInheritanceRoot::class,
+            JoinedInheritanceChild::class,
             JoinedInheritanceWritableColumn::class,
             JoinedInheritanceNonWritableColumn::class,
             JoinedInheritanceNonInsertableColumn::class,
             JoinedInheritanceNonUpdatableColumn::class,
         );
+    }
+
+    public function testJoinedInheritanceRootColumns(): void
+    {
+        $entity                           = new JoinedInheritanceChild();
+        $entity->rootWritableContent      = 'foo';
+        $entity->rootNonWritableContent   = 'foo';
+        $entity->rootNonInsertableContent = 'foo';
+        $entity->rootNonUpdatableContent  = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check refetch override some non-insertable values
+        self::assertEquals('foo', $entity->rootWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonInsertableContent);
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
+
+        $this->_em->clear();
+        $entity = $this->_em->find(JoinedInheritanceChild::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceChild::class, $entity);
+        self::assertEquals('foo', $entity->rootWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonInsertableContent);
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
+
+        // update
+        $entity->rootWritableContent      = 'bar';
+        $entity->rootNonInsertableContent = 'bar';
+        $entity->rootNonWritableContent   = 'bar';
+        $entity->rootNonUpdatableContent  = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check fetch generated values override prefilled for notUpdatable
+        self::assertEquals('bar', $entity->rootWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
+        self::assertEquals('bar', $entity->rootNonInsertableContent);
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
     }
 
     public function testJoinedInheritanceWritableColumn(): void
