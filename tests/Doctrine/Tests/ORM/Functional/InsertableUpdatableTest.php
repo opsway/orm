@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\ORM\Functional;
 
 use Doctrine\Tests\Models\Upsertable\Insertable;
+use Doctrine\Tests\Models\Upsertable\JoinedInheritanceChild;
 use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonInsertableColumn;
 use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonUpdatableColumn;
 use Doctrine\Tests\Models\Upsertable\JoinedInheritanceNonWritableColumn;
@@ -21,6 +22,7 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         $this->createSchemaForModels(
             JoinedInheritanceRoot::class,
+            JoinedInheritanceChild::class,
             JoinedInheritanceWritableColumn::class,
             JoinedInheritanceNonWritableColumn::class,
             JoinedInheritanceNonInsertableColumn::class,
@@ -76,6 +78,47 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
         self::assertEquals('foo', $cleanUpdatable->nonUpdatableContent);
     }
 
+    public function testJoinedInheritanceRootColumns(): void
+    {
+        $entity                           = new JoinedInheritanceChild();
+        $entity->rootWritableContent      = 'foo';
+        $entity->rootNonWritableContent   = 'foo';
+        $entity->rootNonInsertableContent = 'foo';
+        $entity->rootNonUpdatableContent  = 'foo';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check refetch override some non-insertable values
+        self::assertEquals('foo', $entity->rootWritableContent);
+        //self::assertEquals('dbDefault', $entity->rootNonWritableContent); // TODO: not refetched
+        //self::assertEquals('dbDefault', $entity->rootNonInsertableContent); // TODO
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
+
+        $this->_em->clear();
+        $entity = $this->_em->find(JoinedInheritanceChild::class, $entity->id);
+        self::assertInstanceOf(JoinedInheritanceChild::class, $entity);
+        self::assertEquals('foo', $entity->rootWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonInsertableContent);
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
+
+        // update
+        $entity->rootWritableContent      = 'bar';
+        $entity->rootNonInsertableContent = 'bar';
+        $entity->rootNonWritableContent   = 'bar';
+        $entity->rootNonUpdatableContent  = 'bar';
+
+        $this->_em->persist($entity);
+        $this->_em->flush();
+
+        // check fetch generated values override prefilled for notUpdatable
+        self::assertEquals('bar', $entity->rootWritableContent);
+        //self::assertEquals('dbDefault', $entity->rootNonWritableContent); // TODO: not refetched
+        self::assertEquals('bar', $entity->rootNonInsertableContent);
+        //self::assertEquals('foo', $entity->rootNonUpdatableContent); // TODO: not refetched
+    }
+
     public function testJoinedInheritanceWritableColumn(): void
     {
         $entity                  = new JoinedInheritanceWritableColumn();
@@ -83,6 +126,9 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         $this->_em->persist($entity);
         $this->_em->flush();
+
+        // check refetch not override writable value
+        self::assertEquals('foo', $entity->writableContent);
 
         // check insert
         $this->_em->clear();
@@ -158,6 +204,9 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         $this->_em->persist($entity);
         $this->_em->flush();
+
+        // check refetch not override insertable value
+        self::assertEquals('foo', $entity->nonUpdatableContent);
 
         // check insert
         $this->_em->clear();

@@ -48,7 +48,7 @@ class JoinedSubclassPersister extends AbstractEntityInheritancePersister
     {
         $data = parent::prepareInsertData($entity);
         foreach ($this->class->reflFields as $name => $field) {
-            if (isset($this->class->fieldMappings[$name]['generated'])) {
+            if (isset($this->class->fieldMappings[$name]['notInsertable'])) {
                 $columnName = $this->quoteStrategy->getColumnName($name, $this->class, $this->platform);
                 unset($data[$this->getOwningTable($name)][$columnName]);
             }
@@ -532,7 +532,6 @@ class JoinedSubclassPersister extends AbstractEntityInheritancePersister
                     || ($this->class->isVersioned && $this->class->versionField === $name)
                     || isset($this->class->embeddedClasses[$name])
                     || isset($this->class->fieldMappings[$name]['notInsertable'])
-                    || isset($this->class->fieldMappings[$name]['generated'])
             ) {
                 continue;
             }
