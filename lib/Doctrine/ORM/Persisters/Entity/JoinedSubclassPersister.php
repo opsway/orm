@@ -582,15 +582,18 @@ class JoinedSubclassPersister extends AbstractEntityInheritancePersister
     {
         $columnNames = [];
         foreach ($this->class->fieldMappings as $key => $column) {
+            $class = null;
             if ($this->class->isVersioned && $key === $versionedClass->versionField) {
-                $columnNames[$key] = $this->quoteStrategy->getColumnName($key, $versionedClass, $this->platform);
+                $class = $versionedClass;
             } elseif (isset($column['generated'])) {
                 $class = isset($column['inherited'])
                     ? $this->em->getClassMetadata($column['inherited'])
                     : $this->class;
-
-                $columnNames[$key] = $this->getSelectColumnSQL($key, $class);
+            } else {
+                continue;
             }
+
+            $columnNames[$key] = $this->getSelectColumnSQL($key, $class);
         }
 
         $tableName      = $this->quoteStrategy->getTableName($versionedClass, $this->platform);
