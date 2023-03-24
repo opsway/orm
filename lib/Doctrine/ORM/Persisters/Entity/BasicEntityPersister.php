@@ -181,7 +181,7 @@ class BasicEntityPersister implements EntityPersister
      *
      * @var IdentifierFlattener
      */
-    private $identifierFlattener;
+    protected $identifierFlattener;
 
     /** @var CachedPersisterContext */
     protected $currentPersisterContext;
@@ -374,7 +374,7 @@ class BasicEntityPersister implements EntityPersister
      * @return int[]|null[]|string[]
      * @psalm-return list<int|string|null>
      */
-    private function extractIdentifierTypes(array $id, ClassMetadata $versionedClass): array
+    protected function extractIdentifierTypes(array $id, ClassMetadata $versionedClass): array
     {
         $types = [];
 
