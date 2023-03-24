@@ -44,6 +44,22 @@ class JoinedSubclassPersister extends AbstractEntityInheritancePersister
     /**
      * {@inheritdoc}
      */
+    protected function prepareInsertData($entity)
+    {
+        $data = parent::prepareInsertData($entity);
+        foreach ($this->class->reflFields as $name => $field) {
+            if (isset($this->class->fieldMappings[$name]['generated'])) {
+                $columnName = $this->quoteStrategy->getColumnName($name, $this->class, $this->platform);
+                unset($data[$this->getOwningTable($name)][$columnName]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDiscriminatorColumnTableName()
     {
         $class = $this->class->name !== $this->class->rootEntityName
