@@ -18,8 +18,8 @@ class JoinedInheritanceWritableColumn extends JoinedInheritanceRoot
 {
     /**
      * @var string
-     * @Column(type="string", insertable=true, updatable=true, generated="ALWAYS")
+     * @Column(type="string", insertable=true, updatable=true, options={"default": "dbDefault"}, generated="ALWAYS")
      */
-    #[Column(type: 'string', insertable: true, updatable: true, generated: 'ALWAYS')]
+    #[Column(type: 'string', insertable: true, updatable: true, options: ['default' => 'dbDefault'], generated: 'ALWAYS')]
     public $writableContent;
 }
