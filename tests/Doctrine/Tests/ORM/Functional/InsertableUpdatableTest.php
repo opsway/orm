@@ -91,8 +91,8 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         // check refetch override some non-insertable values
         self::assertEquals('foo', $entity->rootWritableContent);
-        //self::assertEquals('dbDefault', $entity->rootNonWritableContent); // TODO: not refetched
-        //self::assertEquals('dbDefault', $entity->rootNonInsertableContent); // TODO
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
+        self::assertEquals('dbDefault', $entity->rootNonInsertableContent);
         self::assertEquals('foo', $entity->rootNonUpdatableContent);
 
         $this->_em->clear();
@@ -114,9 +114,9 @@ class InsertableUpdatableTest extends OrmFunctionalTestCase
 
         // check fetch generated values override prefilled for notUpdatable
         self::assertEquals('bar', $entity->rootWritableContent);
-        //self::assertEquals('dbDefault', $entity->rootNonWritableContent); // TODO: not refetched
+        self::assertEquals('dbDefault', $entity->rootNonWritableContent);
         self::assertEquals('bar', $entity->rootNonInsertableContent);
-        //self::assertEquals('foo', $entity->rootNonUpdatableContent); // TODO: not refetched
+        self::assertEquals('foo', $entity->rootNonUpdatableContent);
     }
 
     public function testJoinedInheritanceWritableColumn(): void
